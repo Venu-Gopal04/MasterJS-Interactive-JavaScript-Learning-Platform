@@ -1,0 +1,868 @@
+// DOM Elements
+const navLinks = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+const navToggle = document.getElementById('nav-toggle');
+const navMenu = document.getElementById('nav-menu');
+
+// Navigation functionality
+let currentSection = 'home';
+
+function navigateToSection(sectionId) {
+    // Update active section
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+
+    // Show new section
+    const targetSection = document.getElementById(sectionId);
+    const targetLink = document.querySelector(`[data-section="${sectionId}"]`);
+
+    if (targetSection) {
+        targetSection.classList.add('active');
+        currentSection = sectionId;
+    }
+
+    if (targetLink) {
+        targetLink.classList.add('active');
+    }
+
+    // Close mobile menu
+    navMenu.classList.remove('active');
+
+    // Initialize section-specific functionality
+    initializeSection(sectionId);
+}
+
+// Navigation event listeners
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sectionId = link.getAttribute('data-section');
+        navigateToSection(sectionId);
+    });
+});
+
+// Mobile menu toggle
+navToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+});
+
+// Section initialization
+function initializeSection(sectionId) {
+    switch (sectionId) {
+        case 'home':
+            animateStats();
+            break;
+        case 'interview':
+            loadInterviewQuestions();
+            break;
+        case 'challenges':
+            loadChallenges();
+            break;
+        case 'timer':
+            initializeTimer();
+            break;
+    }
+}
+
+// Home Section - Stats Animation
+function animateStats() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+
+    statNumbers.forEach(stat => {
+        const target = parseInt(stat.getAttribute('data-target'));
+        const increment = target / 50;
+        let current = 0;
+
+        const updateStat = () => {
+            if (current < target) {
+                current += increment;
+                stat.textContent = Math.ceil(current);
+                requestAnimationFrame(updateStat);
+            } else {
+                stat.textContent = target;
+            }
+        };
+
+        updateStat();
+    });
+}
+
+// About Section - Interactive Facts
+function showFact(factId) {
+    const fact = document.getElementById(factId);
+    fact.classList.toggle('hidden');
+}
+
+function demonstrateAjax() {
+    const result = document.getElementById('ajax-result');
+    result.innerHTML = 'Loading...';
+
+    // Simulate AJAX call
+    setTimeout(() => {
+        result.innerHTML = '✅ Data loaded asynchronously! This demonstrates how AJAX revolutionized web development by allowing dynamic content updates without page refreshes.';
+    }, 1500);
+}
+
+// Arrays and Objects Section
+let demoArray = ['🍎', '🍌', '🍊', '🍇'];
+let demoObject = {
+    name: 'John',
+    age: 30,
+    city: 'New York'
+};
+
+function demoArrayMethod(method) {
+    const result = document.getElementById('array-result');
+    let output = '';
+
+    switch (method) {
+        case 'push':
+            demoArray.push('🥝');
+            output = `After push('🥝'): [${demoArray.join(', ')}]`;
+            updateArrayVisualization();
+            break;
+
+        case 'pop':
+            const popped = demoArray.pop();
+            output = `Popped: ${popped}, Array: [${demoArray.join(', ')}]`;
+            updateArrayVisualization();
+            break;
+
+        case 'map':
+            const mapped = demoArray.map((item, index) => `${index}: ${item}`);
+            output = `Mapped with indices: [${mapped.join(', ')}]`;
+            break;
+
+        case 'filter':
+            const filtered = demoArray.filter(item => item !== '🍌');
+            output = `Filtered (no bananas): [${filtered.join(', ')}]`;
+            break;
+    }
+
+    result.innerHTML = output;
+}
+
+function updateArrayVisualization() {
+    const container = document.querySelector('.array-container');
+    const indices = document.querySelector('.array-indices');
+
+    container.innerHTML = '';
+    indices.innerHTML = '';
+
+    demoArray.forEach((item, index) => {
+        const element = document.createElement('div');
+        element.className = 'array-element';
+        element.setAttribute('data-index', index);
+        element.textContent = item;
+        container.appendChild(element);
+
+        const indexSpan = document.createElement('span');
+        indexSpan.textContent = index;
+        indices.appendChild(indexSpan);
+    });
+}
+
+function addObjectProperty() {
+    const keyInput = document.getElementById('obj-key');
+    const valueInput = document.getElementById('obj-value');
+    const result = document.getElementById('object-result');
+
+    const key = keyInput.value.trim();
+    const value = valueInput.value.trim();
+
+    if (key && value) {
+        demoObject[key] = value;
+        result.innerHTML = `Object: ${JSON.stringify(demoObject, null, 2)}`;
+        keyInput.value = '';
+        valueInput.value = '';
+    }
+}
+
+function runCode(type) {
+    const result = document.createElement('div');
+    result.className = 'demo-result';
+
+    switch (type) {
+        case 'removeDuplicates':
+            const arr = [1, 2, 2, 3, 3, 4];
+            const unique = [...new Set(arr)];
+            result.innerHTML = `Original: [${arr.join(', ')}]<br>Unique: [${unique.join(', ')}]`;
+            break;
+
+        case 'findObject':
+            const users = [{
+                id: 1,
+                name: 'John'
+            }, {
+                id: 2,
+                name: 'Jane'
+            }];
+            const user = users.find(u => u.id === 2);
+            result.innerHTML = `Found user: ${JSON.stringify(user)}`;
+            break;
+    }
+
+    event.target.parentNode.appendChild(result);
+    setTimeout(() => {
+        result.remove();
+    }, 5000);
+}
+
+// Interview Questions
+const interviewQuestions = {
+    beginner: [{
+            question: "What is JavaScript?",
+            answer: "JavaScript is a high-level, interpreted programming language that is primarily used for web development. It enables interactive web pages and is an essential part of web applications alongside HTML and CSS."
+        },
+        {
+            question: "What are the different data types in JavaScript?",
+            answer: "JavaScript has several data types: Number, String, Boolean, Undefined, Null, Symbol (ES6), BigInt (ES2020), and Object (which includes arrays, functions, and objects)."
+        },
+        {
+            question: "What is the difference between var, let, and const?",
+            answer: "var has function scope and can be redeclared, let has block scope and can be reassigned but not redeclared, const has block scope and cannot be reassigned or redeclared."
+        },
+        {
+            question: "What is hoisting in JavaScript?",
+            answer: "Hoisting is JavaScript's default behavior of moving variable and function declarations to the top of their scope during compilation. Variables declared with var are hoisted and initialized with undefined, while let and const are hoisted but not initialized."
+        },
+        {
+            question: "What is the difference between == and ===?",
+            answer: "== (loose equality) compares values after type coercion, while === (strict equality) compares both value and type without coercion. === is generally preferred as it's more predictable."
+        }
+    ],
+    intermediate: [{
+            question: "Explain closures in JavaScript",
+            answer: "A closure is a function that has access to variables in its outer (enclosing) scope even after the outer function has finished executing. Closures are created every time a function is created."
+        },
+        {
+            question: "What is the event loop in JavaScript?",
+            answer: "The event loop is JavaScript's concurrency model that handles asynchronous operations. It continuously checks the call stack and message queue, moving callbacks from the queue to the stack when the stack is empty."
+        },
+        {
+            question: "What are Promises and how do they work?",
+            answer: "Promises are objects that represent the eventual completion or failure of an asynchronous operation. They have three states: pending, fulfilled, or rejected. They provide a cleaner alternative to callback functions."
+        },
+        {
+            question: "Explain the concept of 'this' in JavaScript",
+            answer: "'this' refers to the object that is executing the current function. Its value depends on how the function is called: in methods it refers to the owner object, in functions it refers to the global object (or undefined in strict mode)."
+        },
+        {
+            question: "What is prototypal inheritance?",
+            answer: "Prototypal inheritance is JavaScript's inheritance model where objects can inherit properties and methods from other objects through the prototype chain. Every object has a prototype property that points to another object."
+        }
+    ],
+    advanced: [{
+            question: "Explain async/await and how it differs from Promises",
+            answer: "async/await is syntactic sugar built on top of Promises that makes asynchronous code look and behave more like synchronous code. async functions always return a Promise, and await pauses execution until the Promise resolves."
+        },
+        {
+            question: "What are generators and iterators in JavaScript?",
+            answer: "Generators are functions that can be paused and resumed, returning multiple values over time. They're defined with function* syntax and use yield to produce values. Iterators are objects that implement the iterator protocol."
+        },
+        {
+            question: "Explain WeakMap and WeakSet",
+            answer: "WeakMap and WeakSet are collections that hold weak references to their elements. Keys in WeakMap and values in WeakSet can be garbage collected if there are no other references to them, preventing memory leaks."
+        },
+        {
+            question: "What is the difference between call, apply, and bind?",
+            answer: "All three methods are used to set the 'this' context. call() invokes the function immediately with arguments passed individually, apply() invokes immediately with arguments as an array, bind() returns a new function with the bound context."
+        },
+        {
+            question: "Explain the concept of currying in JavaScript",
+            answer: "Currying is a functional programming technique that transforms a function with multiple arguments into a sequence of functions, each taking a single argument. It enables partial application and function composition."
+        }
+    ]
+};
+
+function loadInterviewQuestions() {
+    filterQuestions('beginner');
+}
+
+function filterQuestions(difficulty) {
+    const container = document.getElementById('questions-container');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+
+    // Update active tab
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Clear container
+    container.innerHTML = '';
+
+    // Load questions
+    const questions = interviewQuestions[difficulty];
+
+    questions.forEach((q, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = 'question-card';
+        questionCard.innerHTML = `
+            <div class="question-header" onclick="toggleQuestion(${index}, '${difficulty}')">
+                <span class="question-title">${q.question}</span>
+                <span class="difficulty-badge difficulty-${difficulty}">${difficulty}</span>
+                <span class="question-arrow">▼</span>
+            </div>
+            <div class="question-content">
+                <div class="question-answer">${q.answer}</div>
+            </div>
+        `;
+        container.appendChild(questionCard);
+    });
+}
+
+function toggleQuestion(index, difficulty) {
+    const questionCards = document.querySelectorAll('.question-card');
+    const card = questionCards[index];
+    card.classList.toggle('active');
+}
+
+// Coding Challenges
+const challenges = [{
+        title: "Fibonacci Sequence",
+        difficulty: "beginner",
+        description: "Write a function that returns the nth number in the Fibonacci sequence. The Fibonacci sequence starts with 0 and 1, and each subsequent number is the sum of the previous two numbers.",
+        hint: "You can solve this using recursion, iteration, or memoization. Consider the base cases: fibonacci(0) = 0, fibonacci(1) = 1.",
+        solution: `function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// Optimized iterative solution:
+function fibonacciOptimized(n) {
+    if (n <= 1) return n;
+    let a = 0, b = 1, temp;
+    for (let i = 2; i <= n; i++) {
+        temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}`,
+        testCases: [{
+                input: [0],
+                expected: 0
+            },
+            {
+                input: [1],
+                expected: 1
+            },
+            {
+                input: [5],
+                expected: 5
+            },
+            {
+                input: [10],
+                expected: 55
+            }
+        ]
+    },
+    {
+        title: "Two Sum Problem",
+        difficulty: "intermediate",
+        description: "Given an array of integers and a target sum, return the indices of two numbers that add up to the target. You may assume that each input would have exactly one solution.",
+        hint: "Consider using a hash map to store numbers and their indices as you iterate through the array. For each number, check if (target - current number) exists in the hash map.",
+        solution: `function twoSum(nums, target) {
+    const map = new Map();
+    
+    for (let i = 0; i < nums.length; i++) {
+        const complement = target - nums[i];
+        
+        if (map.has(complement)) {
+            return [map.get(complement), i];
+        }
+        
+        map.set(nums[i], i);
+    }
+    
+    return []; // No solution found
+}`,
+        testCases: [{
+                input: [
+                    [2, 7, 11, 15], 9
+                ],
+                expected: [0, 1]
+            },
+            {
+                input: [
+                    [3, 2, 4], 6
+                ],
+                expected: [1, 2]
+            },
+            {
+                input: [
+                    [3, 3], 6
+                ],
+                expected: [0, 1]
+            }
+        ]
+    },
+    {
+        title: "Valid Palindrome",
+        difficulty: "beginner",
+        description: "Write a function that determines if a given string is a palindrome, considering only alphanumeric characters and ignoring cases.",
+        hint: "Convert the string to lowercase and remove non-alphanumeric characters. Then use two pointers from the beginning and end to compare characters.",
+        solution: `function isPalindrome(s) {
+    // Clean the string: remove non-alphanumeric and convert to lowercase
+    const cleaned = s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    
+    let left = 0;
+    let right = cleaned.length - 1;
+    
+    while (left < right) {
+        if (cleaned[left] !== cleaned[right]) {
+            return false;
+        }
+        left++;
+        right--;
+    }
+    
+    return true;
+}`,
+        testCases: [{
+                input: ["A man, a plan, a canal: Panama"],
+                expected: true
+            },
+            {
+                input: ["race a car"],
+                expected: false
+            },
+            {
+                input: [" "],
+                expected: true
+            }
+        ]
+    },
+    {
+        title: "Maximum Subarray Sum",
+        difficulty: "intermediate",
+        description: "Find the contiguous subarray within an array (containing at least one number) which has the largest sum and return its sum.",
+        hint: "Use Kadane's algorithm: keep track of the maximum sum ending at the current position and the overall maximum sum seen so far.",
+        solution: `function maxSubArray(nums) {
+    let maxSoFar = nums[0];
+    let maxEndingHere = nums[0];
+    
+    for (let i = 1; i < nums.length; i++) {
+        maxEndingHere = Math.max(nums[i], maxEndingHere + nums[i]);
+        maxSoFar = Math.max(maxSoFar, maxEndingHere);
+    }
+    
+    return maxSoFar;
+}`,
+        testCases: [{
+                input: [
+                    [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+                ],
+                expected: 6
+            },
+            {
+                input: [
+                    [1]
+                ],
+                expected: 1
+            },
+            {
+                input: [
+                    [5, 4, -1, 7, 8]
+                ],
+                expected: 23
+            }
+        ]
+    },
+    {
+        title: "Binary Tree Traversal",
+        difficulty: "advanced",
+        description: "Implement inorder traversal of a binary tree. Return the values of the nodes in inorder sequence.",
+        hint: "For inorder traversal: visit left subtree, then root, then right subtree. You can implement this recursively or iteratively using a stack.",
+        solution: `// Recursive solution
+function inorderTraversal(root) {
+    const result = [];
+    
+    function inorder(node) {
+        if (node === null) return;
+        
+        inorder(node.left);   // Visit left subtree
+        result.push(node.val); // Visit root
+        inorder(node.right);  // Visit right subtree
+    }
+    
+    inorder(root);
+    return result;
+}
+
+// Iterative solution
+function inorderTraversalIterative(root) {
+    const result = [];
+    const stack = [];
+    let current = root;
+    
+    while (current !== null || stack.length > 0) {
+        while (current !== null) {
+            stack.push(current);
+            current = current.left;
+        }
+        
+        current = stack.pop();
+        result.push(current.val);
+        current = current.right;
+    }
+    
+    return result;
+}`,
+        testCases: [{
+                input: ["Binary tree with values [1,null,2,3]"],
+                expected: [1, 3, 2]
+            },
+            {
+                input: ["Empty tree"],
+                expected: []
+            },
+            {
+                input: ["Single node tree [1]"],
+                expected: [1]
+            }
+        ]
+    },
+    {
+        title: "Merge Sorted Arrays",
+        difficulty: "beginner",
+        description: "Merge two sorted arrays into one sorted array. You can assume both arrays are sorted in ascending order.",
+        hint: "Use two pointers, one for each array. Compare elements and add the smaller one to the result array. Don't forget to add remaining elements.",
+        solution: `function mergeSortedArrays(arr1, arr2) {
+    const result = [];
+    let i = 0, j = 0;
+    
+    while (i < arr1.length && j < arr2.length) {
+        if (arr1[i] <= arr2[j]) {
+            result.push(arr1[i]);
+            i++;
+        } else {
+            result.push(arr2[j]);
+            j++;
+        }
+    }
+    
+    // Add remaining elements
+    while (i < arr1.length) {
+        result.push(arr1[i]);
+        i++;
+    }
+    
+    while (j < arr2.length) {
+        result.push(arr2[j]);
+        j++;
+    }
+    
+    return result;
+}`,
+        testCases: [{
+                input: [
+                    [1, 3, 5],
+                    [2, 4, 6]
+                ],
+                expected: [1, 2, 3, 4, 5, 6]
+            },
+            {
+                input: [
+                    [],
+                    [1, 2, 3]
+                ],
+                expected: [1, 2, 3]
+            },
+            {
+                input: [
+                    [1, 2, 3],
+                    []
+                ],
+                expected: [1, 2, 3]
+            }
+        ]
+    }
+];
+
+let currentChallenge = null;
+
+function loadChallenges() {
+    const container = document.getElementById('challenges-grid');
+    container.innerHTML = '';
+
+    challenges.forEach((challenge, index) => {
+        const challengeCard = document.createElement('div');
+        challengeCard.className = 'challenge-card';
+        challengeCard.onclick = () => openChallenge(index);
+
+        challengeCard.innerHTML = `
+            <div class="challenge-difficulty difficulty-${challenge.difficulty}">${challenge.difficulty}</div>
+            <h3 class="challenge-title">${challenge.title}</h3>
+            <p class="challenge-description">${challenge.description.substring(0, 100)}...</p>
+        `;
+
+        container.appendChild(challengeCard);
+    });
+}
+
+function openChallenge(index) {
+    currentChallenge = challenges[index];
+    const modal = document.getElementById('challenge-modal');
+
+    document.getElementById('challenge-title').textContent = currentChallenge.title;
+    document.getElementById('challenge-description').textContent = currentChallenge.description;
+    document.getElementById('code-input').value = '';
+
+    // Clear previous results
+    document.getElementById('hint-section').classList.add('hidden');
+    document.getElementById('solution-section').classList.add('hidden');
+    document.getElementById('result-section').innerHTML = '';
+
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('challenge-modal').classList.remove('active');
+    currentChallenge = null;
+}
+
+function showHint() {
+    const hintSection = document.getElementById('hint-section');
+    hintSection.innerHTML = `<h4>Hint:</h4><p>${currentChallenge.hint}</p>`;
+    hintSection.classList.remove('hidden');
+}
+
+function showSolution() {
+    const solutionSection = document.getElementById('solution-section');
+    solutionSection.innerHTML = `
+        <h4>Solution:</h4>
+        <pre><code>${currentChallenge.solution}</code></pre>
+    `;
+    solutionSection.classList.remove('hidden');
+}
+
+function submitSolution() {
+    const code = document.getElementById('code-input').value.trim();
+    const resultSection = document.getElementById('result-section');
+
+    if (!code) {
+        resultSection.className = 'result-section error';
+        resultSection.innerHTML = 'Please write your solution first!';
+        return;
+    }
+
+    // Simple validation - in a real app, you'd want to run actual tests
+    if (code.includes('function') && code.length > 50) {
+        resultSection.className = 'result-section';
+        resultSection.innerHTML = '✅ Great job! Your solution looks good. In a real coding environment, this would be tested against the provided test cases.';
+    } else {
+        resultSection.className = 'result-section error';
+        resultSection.innerHTML = '❌ Please provide a more complete solution. Make sure to define a function that solves the problem.';
+    }
+}
+
+// Timer and Batch Generator with 15 Pre-defined Batches
+let timerInterval;
+
+// Real roll numbers from the provided list
+const rollNumbers = [
+    '22A81A4301', '22A81A4302', '22A81A4304', '22A81A4306', '22A81A4307', '22A81A4308',
+    '22A81A4309', '22A81A4310', '22A81A4311', '22A81A4313', '22A81A4314', '22A81A4316',
+    '22A81A4317', '22A81A4323', '22A81A4324', '22A81A4326', '22A81A4328', '22A81A4329',
+    '22A81A4330', '22A81A4331', '22A81A4332', '22A81A4337', '22A81A4339', '22A81A4341',
+    '22A81A4342', '22A81A4343', '22A81A4346', '22A81A4349', '22A81A4351', '22A81A4352',
+    '22A81A4353', '22A81A4354', '22A81A4357', '22A81A4360', '22A81A4362', '22A81A4363',
+    '22A81A4364', '22A81A4366', '23A85A4302', '23A85A4303', '23A85A4304', '23A85A4305',
+    '23A85A4306', '22A81A4367', '22A81A4368', '22A81A4370', '22A81A4373', '22A81A4376',
+    '22A81A4377', '22A81A4378', '22A81A4379', '22A81A4380', '22A81A4381', '22A81A4382',
+    '22A81A4383', '22A81A4387', '22A81A4391', '22A81A4392', '22A81A4394', '22A81A4396',
+    '22A81A4397', '22A81A4399', '22A81A43A0', '22A81A43A1', '22A81A43A2', '22A81A43A3',
+    '22A81A43A4', '22A81A43A6', '22A81A43A7', '22A81A43A9', '22A81A43B0', '22A81A43B3',
+    '22A81A43B7', '22A81A43C0', '22A81A43C1', '22A81A43C3', '22A81A43C4', '22A81A43C5',
+    '22A81A43C6', '22A81A43C7', '22A81A43C8', '22A81A43C9', '22A81A43D1', '22A81A43D2',
+    '23A85A4307', '23A85A4308', '23A85A4309', '23A85A4311', '23A85A4312', '23A85A4391'
+];
+
+// Pre-defined 15 batches of 6 members each (with some having extra members)
+const predefinedBatches = [
+    ['22A81A4399', '22A81A4360', '22A81A4396', '22A81A4341', '22A81A4332', '22A81A4387'],
+    ['22A81A4397', '22A81A4304', '22A81A4382', '23A85A4391', '22A81A4391', '22A81A4326'],
+    ['22A81A4370', '22A81A4354', '23A85A4309', '23A85A4306', '22A81A4367', '22A81A4339'],
+    ['22A81A4362', '22A81A4313', '22A81A4328', '22A81A4314', '22A81A4343', '22A81A43A9'],
+    ['22A81A4342', '22A81A4337', '22A81A4311', '22A81A4378', '22A81A4310', '22A81A4376'],
+    ['23A85A4304', '22A81A4394', '22A81A4331', '22A81A4307', '22A81A4373', '22A81A4346'],
+    ['22A81A4392', '23A85A4312', '22A81A4302', '22A81A4317', '22A81A4381', '22A81A43C0'],
+    ['22A81A4391', '22A81A4324', '22A81A4383', '23A85A4305', '22A81A4330', '22A81A43A4'],
+    ['22A81A4316', '22A81A4366', '23A85A4307', '22A81A43A3', '22A81A4332', '22A81A4399'],
+    ['23A85A4308', '22A81A4317', '22A81A4349', '22A81A4323', '23A85A4306', '23A85A4311'],
+    ['22A81A4351', '22A81A4349', '22A81A4331', '22A81A4306', '22A81A4357', '22A81A43B0'],
+    ['22A81A4343', '22A81A4387', '22A81A43A2', '22A81A4396', '22A81A4339', '22A81A43C4'],
+    ['22A81A4314', '22A81A4331', '22A81A43B3', '22A81A4363', '22A81A4377', '22A81A43C1'],
+    ['22A81A4332', '22A81A4329', '22A81A4354', '22A81A43C3', '22A81A4379', '22A81A4326'],
+    ['22A81A4354', '22A81A4357', '22A81A43C6', '22A81A43B7', '22A81A4368', '23A85A4302']
+];
+
+function initializeTimer() {
+    startCountdown();
+}
+
+function startCountdown() {
+    const now = new Date();
+    const today = new Date(now);
+    today.setHours(09, 30, 0, 0); // 10:30 AM today
+
+    // If current time is past 10:30 AM today, set for tomorrow
+    if (now > today) {
+        today.setDate(today.getDate());
+    }
+
+    timerInterval = setInterval(() => {
+        const now = new Date();
+        const timeLeft = today - now;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            showBatchGenerator();
+            return;
+        }
+
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+        document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    showBatchGenerator(); // Call this function directly to bypass any countdown
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    showBatchGenerator(); // Call this function directly to bypass any countdown
+});
+
+function showBatchGenerator() {
+    document.getElementById('batch-generator').classList.remove('hidden');
+}
+
+function generateBatch() {
+    const input = document.getElementById('batch-input').value.trim();
+    const batchDisplay = document.getElementById('batch-display');
+    const batchMembers = document.getElementById('batch-members');
+
+    if (!input) {
+        alert('Please enter your roll number');
+        return;
+    }
+
+    const userRollNumber = input.toUpperCase();
+
+    // Check if any batch has been viewed before using a global token
+    const deviceToken = localStorage.getItem('batch_viewed');
+    if (deviceToken) {
+        batchDisplay.innerHTML = `
+            <div style="text-align: center; color: #ef4444; font-size: 1.2rem; padding: 2rem;">
+                <h4>Access Denied</h4>
+                <p>No permission for the second time.</p>
+                <p>You have already viewed batch information from this device.</p>
+            </div>
+        `;
+        batchMembers.innerHTML = '';
+        return;
+    }
+
+    // Check if the entered roll number exists in our list
+    if (!rollNumbers.includes(userRollNumber)) {
+        alert('Roll number not found in the database. Please enter a valid roll number.');
+        return;
+    }
+
+    // Find which batch the user belongs to
+    let userBatchIndex = -1;
+    let userBatch = null;
+
+    for (let i = 0; i < predefinedBatches.length; i++) {
+        if (predefinedBatches[i].includes(userRollNumber)) {
+            userBatchIndex = i;
+            userBatch = predefinedBatches[i];
+            break;
+        }
+    }
+
+    if (userBatch) {
+        // Set a device-wide token in localStorage to prevent further viewing
+        localStorage.setItem('batch_viewed', 'true');
+
+        // Display user's batch in vertical column format
+        batchDisplay.innerHTML = `
+            <h4 style="text-align: center; color: #fff; margin-bottom: 1.5rem;">Your Batch (Batch ${userBatchIndex + 1})</h4>
+            <div style="background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 1rem; padding: 2rem; max-width: 400px; margin: 0 auto;">
+                <h5 style="color: #3b82f6; text-align: center; margin-bottom: 1rem; font-size: 1.1rem;">Batch Members:</h5>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    ${userBatch.map((rollNo, idx) => `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.1); 
+                            padding: 0.75rem 1rem; 
+                            border-radius: 0.5rem; 
+                            border-left: 4px solid #3b82f6;
+                            color: #e2e8f0;
+                            font-family: monospace;
+                            font-size: 1rem;
+                            font-weight: 500;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                        ">
+                            <span>${idx + 1}.</span>
+                            <span style="color: ${rollNo === userRollNumber ? '#fbbf24' : '#e2e8f0'}; font-weight: ${rollNo === userRollNumber ? '700' : '500'};">
+                                ${rollNo} ${rollNo === userRollNumber ? '(You)' : ''}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Total Members: ${userBatch.length}</p>
+                    <p style="color: #fbbf24; margin-top: 0.5rem; font-size: 0.85rem; font-weight: 500;">⚠️ This information can only be viewed once per device</p>
+                </div>
+            </div>
+        `;
+
+        // Clear batch members section
+        batchMembers.innerHTML = '';
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize first section
+    initializeSection('home');
+
+    // Add smooth scrolling
+    document.documentElement.style.scrollBehavior = 'smooth';
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('challenge-modal');
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeModal();
+        navMenu.classList.remove('active');
+    }
+});
+
+// Window resize handler
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        navMenu.classList.remove('active');
+    }
+});
